@@ -1,0 +1,35 @@
+SilverShop\Stock\Model\ProductWarehouse:
+  main:
+    Title: Main Warehouse
+
+SilverShop\Page\Product:
+  component_a:
+    Title: Component A
+    BasePrice: 10.00
+    AllowPurchase: 1
+  component_b:
+    Title: Component B
+    BasePrice: 5.00
+    AllowPurchase: 1
+
+SilverShop\ProductBundles\Page\BundleProduct:
+  bundle:
+    Title: Starter Bundle
+    BasePrice: 12.00
+    AllowPurchase: 1
+  bundle_empty:
+    Title: Empty Bundle
+    BasePrice: 20.00
+    AllowPurchase: 1
+
+SilverShop\ProductBundles\Model\BundleItem:
+  item_a:
+    Bundle: =>SilverShop\ProductBundles\Page\BundleProduct.bundle
+    Product: =>SilverShop\Page\Product.component_a
+    Quantity: 2
+    SortOrder: 1
+  item_b:
+    Bundle: =>SilverShop\ProductBundles\Page\BundleProduct.bundle
+    Product: =>SilverShop\Page\Product.component_b
+    Quantity: 1
+    SortOrder: 2

@@ -1,0 +1,14 @@
+includes:
+    - vendor/cambis/silverstan/extension.neon
+
+parameters:
+    level: 5
+    paths:
+        - src
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false
+    silverstan:
+        includeTestOnly: true
+    ignoreErrors:
+        # Stock methods are contributed by silvershop/stock's extension and guarded with hasMethod().
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::(decrementStock|incrementStock)\(\)#'
