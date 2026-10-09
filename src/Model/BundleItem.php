@@ -64,6 +64,27 @@ class BundleItem extends DataObject
         'Quantity' => 'Quantity',
     ];
 
+    /**
+     * @var array<string, string>
+     */
+    private static array $casting = [
+        'SubTotal' => 'Currency',
+    ];
+
+    /**
+     * The contribution of this line to the bundle: the component's selling price times its bundle quantity.
+     * Cast to Currency for templates.
+     */
+    public function getSubTotal(): float
+    {
+        $product = $this->Product();
+        if (!$product || !$product->exists()) {
+            return 0.0;
+        }
+
+        return $product->sellingPrice() * max(1, (int) $this->Quantity);
+    }
+
     public function getCMSFields(): FieldList
     {
         $fields = parent::getCMSFields();

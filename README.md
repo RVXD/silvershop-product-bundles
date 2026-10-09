@@ -8,8 +8,9 @@ purchased, the stock of each component is decremented automatically; when the or
 restored.
 
 > **Status.** Per-component quantities + component stock linkage + flexible pricing (fixed, or sum of the
-> components with an optional bundle discount) and savings accessors. The data model is built around a join
-> object so the features on the roadmap below slot in without reshaping the schema. See [Roadmap](#roadmap).
+> components with an optional bundle discount) with savings accessors + frontend includes (product page and
+> cart). The data model is built around a join object so the features on the roadmap below slot in without
+> reshaping the schema. See [Roadmap](#roadmap).
 
 ## Requirements
 
@@ -72,6 +73,26 @@ A bundle is only **purchasable** when it has at least one component and **every*
 for the required quantity. Leave the bundle itself without its own stock record (or unlimited) — availability
 is derived from its components.
 
+## Showing bundles on the frontend
+
+The module ships self-styled template includes. Add them to your theme where you want them.
+
+**Product page** — in your product template (e.g. `themes/<theme>/templates/SilverShop/Page/Layout/Product.ss`),
+output the contents + savings block:
+
+```ss
+<% include SilverShop\ProductBundles\BundleContents %>
+```
+
+**Cart / order line** — show a compact contents list under a bundle line, with the bundle in scope:
+
+```ss
+<% with $Product %><% include SilverShop\ProductBundles\BundleCartSummary %><% end_with %>
+```
+
+Both includes output nothing for non-bundle products, so they are safe to drop into shared templates. They are
+self-styled; override either by copying it into your theme at the same path.
+
 ## Configuration
 
 The module registers its extensions and admin model via `_config/product-bundles.yml`:
@@ -87,11 +108,10 @@ No YAML configuration is required for the default behaviour.
 ## Roadmap
 
 Done: per-component quantities + stock linkage; flexible pricing (fixed / sum / sum − discount) with savings
-accessors.
+accessors; frontend includes for product page and cart.
 
 Planned slices, each building on the `BundleItem` join object without a schema rebuild:
 
-- **Frontend** — a template rendering the bundle's contents and savings on the product page and in the cart.
 - **Optional items / extras** — components the customer can opt into, with price adjustment.
 - **Mix-and-match** — choice groups ("pick 3 of these 6") with min/max selection.
 - **Variations** — allow a bundled line to target a specific product variation.
