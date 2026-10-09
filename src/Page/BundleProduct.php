@@ -94,9 +94,12 @@ class BundleProduct extends Product
     {
         $fields = parent::getCMSFields();
 
+        // Replace the auto-scaffolded has_many grid so there is a single "Bundle" tab (not a duplicate).
+        $fields->removeByName('BundleItems');
+
         if ($this->isInDB()) {
             $fields->addFieldToTab(
-                'Root.Bundle',
+                'Root.BundleItems',
                 GridField::create(
                     'BundleItems',
                     _t(self::class . '.BundleItems', 'Bundled products'),
@@ -105,7 +108,7 @@ class BundleProduct extends Product
                 )
             );
         } else {
-            $fields->addFieldToTab('Root.Bundle', LiteralField::create(
+            $fields->addFieldToTab('Root.BundleItems', LiteralField::create(
                 'BundleItemsNotice',
                 '<p class="message notice">' . _t(
                     self::class . '.SaveFirst',
@@ -113,6 +116,8 @@ class BundleProduct extends Product
                 ) . '</p>'
             ));
         }
+
+        $fields->fieldByName('Root.BundleItems')?->setTitle(_t(self::class . '.BundleTab', 'Bundle'));
 
         $fields->removeByName(['PricingType', 'DiscountType', 'DiscountValue']);
         $fields->addFieldsToTab('Root.Pricing', [
