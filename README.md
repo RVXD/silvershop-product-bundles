@@ -155,6 +155,11 @@ accessors; frontend includes for product page and cart; optional opt-in extras; 
 Possible future additions (not yet built): tiered/quantity price breaks, a "frequently bought together"
 suggester, and a bundle-as-its-own-SKU stock mode.
 
+## Translations
+
+All front-end and CMS strings go through `_t()` / `<%t %>`. Ships with **en, nl, de, fr, es, it** (`lang/*.yml`);
+override or add locales the usual Silverstripe way.
+
 ## Development
 
 ```bash
