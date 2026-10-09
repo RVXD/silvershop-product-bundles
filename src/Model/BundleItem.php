@@ -22,6 +22,7 @@ use SilverStripe\Security\Member;
  *
  * @property int $Quantity
  * @property int $SortOrder
+ * @property bool $Optional
  * @property int $ProductID
  * @property int $BundleID
  * @method BundleProduct Bundle()
@@ -37,6 +38,8 @@ class BundleItem extends DataObject
     private static array $db = [
         'Quantity' => 'Int',
         'SortOrder' => 'Int',
+        // Required items are always part of the bundle; optional items are extras the customer opts into.
+        'Optional' => 'Boolean',
     ];
 
     /**
@@ -62,6 +65,7 @@ class BundleItem extends DataObject
     private static array $summary_fields = [
         'Product.Title' => 'Product',
         'Quantity' => 'Quantity',
+        'Optional.Nice' => 'Optional',
     ];
 
     /**
@@ -110,6 +114,11 @@ class BundleItem extends DataObject
                     'How many of this product are included in one bundle.'
                 ))
         );
+
+        $fields->dataFieldByName('Optional')?->setDescription(_t(
+            self::class . '.OptionalDesc',
+            'An optional extra the customer can add. Required items are always included and set the base price.'
+        ));
 
         return $fields;
     }

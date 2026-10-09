@@ -1,9 +1,10 @@
-<%-- Compact list of a bundle's contents, for a cart/order line. Include it with the bundle in scope,
-     e.g. in a cart item row: <% with $Product %><% include SilverShop\ProductBundles\BundleCartSummary %><% end_with %>
-     Outputs nothing for non-bundle products. --%>
-<% if $BundleItems %>
+<%-- Compact list of a bundle line's contents (required items + the extras this customer chose), for a
+     cart/order row. Include it with the bundle ORDER ITEM in scope — in a cart item loop the current scope
+     already is the order item:  <% include SilverShop\ProductBundles\BundleCartSummary %>
+     Outputs nothing for non-bundle order items. --%>
+<% if $FulfilmentItems %>
 <ul class="bundle-cart-summary" style="list-style:none;margin:.25rem 0 0;padding:0;font-size:.85rem;color:#666">
-    <% loop $BundleItems %>
+    <% loop $FulfilmentItems %>
         <li>{$Quantity}&times; $Product.Title</li>
     <% end_loop %>
 </ul>

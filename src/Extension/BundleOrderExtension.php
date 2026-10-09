@@ -6,12 +6,13 @@ namespace SilverShop\ProductBundles\Extension;
 
 use SilverShop\Model\Order;
 use SilverShop\Model\Product\OrderItem as ProductOrderItem;
+use SilverShop\ProductBundles\Model\BundleOrderItem;
 use SilverShop\ProductBundles\Page\BundleProduct;
 use SilverStripe\Core\Extension;
 
 /**
- * Restores bundled component stock when an order is cancelled, mirroring silvershop/stock's own restock of
- * the primary line product for the same status transitions.
+ * Restores bundled component stock when an order is cancelled — the required items plus any selected optional
+ * extras — mirroring silvershop/stock's own restock of the primary line product for the same transitions.
  *
  * @extends Extension<Order>
  */
@@ -39,7 +40,9 @@ class BundleOrderExtension extends Extension
 
             $lineQuantity = (int) $orderItem->Quantity;
 
-            foreach ($product->BundleItems() as $item) {
+            $items = $orderItem instanceof BundleOrderItem ? $orderItem->FulfilmentItems() : $product->RequiredItems();
+
+            foreach ($items as $item) {
                 $component = $item->Product();
                 if (!$component || !$component->exists() || !$component->hasMethod('incrementStock')) {
                     continue;

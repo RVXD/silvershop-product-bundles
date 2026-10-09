@@ -29,7 +29,7 @@ class BundleProductTest extends SapphireTest
     public function testBundleItemsRelation(): void
     {
         $bundle = $this->objFromFixture(BundleProduct::class, 'bundle');
-        $this->assertSame(2, $bundle->BundleItems()->count());
+        $this->assertSame(3, $bundle->BundleItems()->count());
     }
 
     public function testCannotNestBundles(): void

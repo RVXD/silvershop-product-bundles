@@ -6,6 +6,7 @@ namespace SilverShop\ProductBundles\Tests;
 
 use SilverShop\Page\Product;
 use SilverShop\ProductBundles\Model\BundleItem;
+use SilverShop\ProductBundles\Model\BundleOrderItem;
 use SilverShop\ProductBundles\Page\BundleProduct;
 use SilverStripe\Dev\SapphireTest;
 
@@ -45,13 +46,22 @@ class BundleFrontendTest extends SapphireTest
         $this->assertStringNotContainsString('bundle-contents', $html);
     }
 
-    public function testCartSummaryRendersContents(): void
+    public function testCartSummaryRendersSelectedContents(): void
     {
         $bundle = $this->objFromFixture(BundleProduct::class, 'bundle');
+        $bundle->write();
+        $itemC = $this->objFromFixture(BundleItem::class, 'item_c');
 
-        $html = (string) $bundle->renderWith(['type' => 'Includes', 'SilverShop\\ProductBundles\\BundleCartSummary']);
+        $line = BundleOrderItem::create();
+        $line->ProductID = $bundle->ID;
+        $line->ProductVersion = $bundle->Version;
+        $line->OptionalItemIDs = [$itemC->ID];
+        $line->write();
 
-        $this->assertStringContainsString('Component A', $html);
-        $this->assertStringContainsString('Component B', $html);
+        $html = (string) $line->renderWith(['type' => 'Includes', 'SilverShop\\ProductBundles\\BundleCartSummary']);
+
+        $this->assertStringContainsString('Component A', $html); // required
+        $this->assertStringContainsString('Component B', $html); // required
+        $this->assertStringContainsString('Component C', $html); // selected optional
     }
 }

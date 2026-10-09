@@ -7,12 +7,14 @@ namespace SilverShop\ProductBundles\Page;
 use SilverShop\Model\Order;
 use SilverShop\Page\Product;
 use SilverShop\ProductBundles\Model\BundleItem;
+use SilverShop\ProductBundles\Model\BundleOrderItem;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\NumericField;
+use SilverStripe\ORM\HasManyList;
 use SilverStripe\Security\Member;
 
 /**
@@ -27,6 +29,8 @@ use SilverStripe\Security\Member;
  * Slice 1: component stock linkage via silvershop/stock.
  * Slice 2: pricing — fixed (the inherited BasePrice) or the sum of the bundled products, with an optional
  * bundle discount, plus "you save" accessors comparing the selling price to the components bought separately.
+ * Slice 4: items can be marked optional. Required items set the base price and are always fulfilled; optional
+ * items are extras the customer selects at add-to-cart time (see {@link BundleOrderItem}).
  *
  * @property string $PricingType
  * @property string $DiscountType
@@ -35,6 +39,11 @@ use SilverStripe\Security\Member;
 class BundleProduct extends Product
 {
     private static string $table_name = 'SilverShop_BundleProduct';
+
+    /**
+     * Bundles are added to the cart as a {@link BundleOrderItem}, which records the selected optional extras.
+     */
+    private static string $order_item = BundleOrderItem::class;
 
     private static string $singular_name = 'Bundle';
 
@@ -76,6 +85,7 @@ class BundleProduct extends Product
      */
     private static array $casting = [
         'ComponentsPrice' => 'Currency',
+        'OptionalsTotal' => 'Currency',
         'Savings' => 'Currency',
         'SavingsPercentage' => 'Int',
     ];
@@ -153,17 +163,46 @@ class BundleProduct extends Product
     }
 
     /**
-     * Raw total of the bundled products' selling prices (component price x per-bundle quantity), in the
-     * active currency. Not rounded or discounted — the basis for Sum pricing and the savings comparison.
+     * The always-included items (set the base price).
+     */
+    public function RequiredItems(): HasManyList
+    {
+        return $this->BundleItems()->filter('Optional', 0);
+    }
+
+    /**
+     * The opt-in extras.
+     */
+    public function OptionalItems(): HasManyList
+    {
+        return $this->BundleItems()->filter('Optional', 1);
+    }
+
+    /**
+     * Raw total of the REQUIRED items' selling prices (component price x per-bundle quantity), in the active
+     * currency. Not rounded or discounted — the basis for Sum pricing and the savings comparison. Optional
+     * extras are priced per order line (see {@link BundleOrderItem}), not here.
      */
     public function getComponentTotal(): float
     {
         $total = 0.0;
-        foreach ($this->BundleItems() as $item) {
-            $product = $item->Product();
-            if ($product && $product->exists()) {
-                $total += $product->sellingPrice() * max(1, (int) $item->Quantity);
-            }
+        /** @var BundleItem $item */
+        foreach ($this->RequiredItems() as $item) {
+            $total += $item->getSubTotal();
+        }
+
+        return $total;
+    }
+
+    /**
+     * Raw total of the OPTIONAL items' selling prices, for "add these extras" display. Cast to Currency.
+     */
+    public function getOptionalsTotal(): float
+    {
+        $total = 0.0;
+        /** @var BundleItem $item */
+        foreach ($this->OptionalItems() as $item) {
+            $total += $item->getSubTotal();
         }
 
         return $total;
@@ -212,12 +251,13 @@ class BundleProduct extends Product
             return false;
         }
 
-        $items = $this->BundleItems();
-        if (!$items->exists()) {
+        if (!$this->BundleItems()->exists()) {
             return false;
         }
 
-        foreach ($items as $item) {
+        // Only required items gate purchasability — an out-of-stock optional extra does not block the bundle.
+        /** @var BundleItem $item */
+        foreach ($this->RequiredItems() as $item) {
             $product = $item->Product();
             if (!$product || !$product->exists()) {
                 return false;

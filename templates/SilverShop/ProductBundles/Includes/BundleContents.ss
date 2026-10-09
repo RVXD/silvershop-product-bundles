@@ -15,12 +15,14 @@
         .bundle-contents__was{color:#999;text-decoration:line-through}
         .bundle-contents__now{font-size:1.3rem;font-weight:700}
         .bundle-contents__badge{background:#2e7d32;color:#fff;border-radius:4px;padding:2px 9px;font-size:.8rem;font-weight:600}
+        .bundle-contents__extras-heading{margin:1.1rem 0 .4rem;font-size:1rem}
+        .bundle-contents__item--optional .bundle-contents__price{color:#2e7d32;font-weight:600}
     </style>
 
     <h2><%t SilverShop\ProductBundles.ContentsHeading "What's in this bundle" %></h2>
 
     <ul class="bundle-contents__list">
-        <% loop $BundleItems %>
+        <% loop $RequiredItems %>
             <li class="bundle-contents__item">
                 <% if $Product.Image.Exists %><img src="$Product.Image.Fill(56,56).URL" alt="$Product.Title.ATT" width="56" height="56"><% end_if %>
                 <span class="bundle-contents__qty">{$Quantity}&times;</span>
@@ -29,6 +31,20 @@
             </li>
         <% end_loop %>
     </ul>
+
+    <% if $OptionalItems %>
+        <h3 class="bundle-contents__extras-heading"><%t SilverShop\ProductBundles.Extras "Optional extras" %></h3>
+        <ul class="bundle-contents__list">
+            <% loop $OptionalItems %>
+                <li class="bundle-contents__item bundle-contents__item--optional">
+                    <% if $Product.Image.Exists %><img src="$Product.Image.Fill(56,56).URL" alt="$Product.Title.ATT" width="56" height="56"><% end_if %>
+                    <span class="bundle-contents__qty">{$Quantity}&times;</span>
+                    <a href="$Product.Link">$Product.Title</a>
+                    <span class="bundle-contents__price">+$SubTotal.Nice</span>
+                </li>
+            <% end_loop %>
+        </ul>
+    <% end_if %>
 
     <% if $HasSavings %>
         <p class="bundle-contents__savings">

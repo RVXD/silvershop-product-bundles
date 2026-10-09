@@ -11,6 +11,10 @@ SilverShop\Page\Product:
     Title: Component B
     BasePrice: 5.00
     AllowPurchase: 1
+  component_c:
+    Title: Component C
+    BasePrice: 8.00
+    AllowPurchase: 1
 
 SilverShop\ProductBundles\Page\BundleProduct:
   bundle:
@@ -33,3 +37,9 @@ SilverShop\ProductBundles\Model\BundleItem:
     Product: =>SilverShop\Page\Product.component_b
     Quantity: 1
     SortOrder: 2
+  item_c:
+    Bundle: =>SilverShop\ProductBundles\Page\BundleProduct.bundle
+    Product: =>SilverShop\Page\Product.component_c
+    Quantity: 1
+    SortOrder: 3
+    Optional: 1
