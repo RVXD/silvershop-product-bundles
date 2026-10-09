@@ -7,9 +7,9 @@ A **Bundle** is a real product (catalog page, price, cart and checkout behaviour
 purchased, the stock of each component is decremented automatically; when the order is cancelled, it is
 restored.
 
-> **Status — slice 1 (foundation).** Fixed price + per-component quantities + component stock linkage. The
-> data model is built around a join object so the features on the roadmap below slot in without reshaping the
-> schema. See [Roadmap](#roadmap).
+> **Status.** Per-component quantities + component stock linkage + flexible pricing (fixed, or sum of the
+> components with an optional bundle discount) and savings accessors. The data model is built around a join
+> object so the features on the roadmap below slot in without reshaping the schema. See [Roadmap](#roadmap).
 
 ## Requirements
 
@@ -34,10 +34,32 @@ Then run a dev/build with a flush:
 
 1. In the CMS, add a **Bundle** where you would add a Product (it appears in the catalog alongside Products,
    and in the **Products** admin).
-2. Set its price on the **Pricing** tab, exactly like a normal product. In this release a bundle is
-   **fixed-price**: the price you set is what the customer pays.
-3. Open the **Bundle** tab and add the products it contains, giving each a **quantity** (e.g. 2× Filter + 1×
+2. Open the **Bundle** tab and add the products it contains, giving each a **quantity** (e.g. 2× Filter + 1×
    Housing). A bundle cannot contain another bundle.
+3. Choose how it is priced on the **Pricing** tab (see below).
+
+### Pricing
+
+On the **Pricing** tab, **Bundle price** selects how the selling price is calculated:
+
+- **Fixed price** — the customer pays the **Base Price** you set, exactly like a normal product.
+- **Sum of the bundled products' prices** — the price is the total of each component's selling price ×
+  its bundle quantity, recalculated automatically as component prices change.
+
+When the price is the *sum*, you can apply a **Bundle discount** — a **percentage** or a **fixed amount**
+off that total.
+
+Either way the bundle exposes savings-versus-separate accessors for templates and reporting:
+
+| Accessor | Meaning |
+| --- | --- |
+| `$ComponentsPrice` | What the contents would cost bought separately (cast to Currency) |
+| `$Savings` | Amount saved versus buying separately, `0` when there is none (Currency) |
+| `$SavingsPercentage` | The saving as a whole-number percent |
+| `$HasSavings` | Whether there is any saving to show |
+
+The price flows through the cart and checkout like any product (`sellingPrice()` is overridden), so order
+totals, tax and modifiers all see the bundle price.
 
 ### Stock linkage
 
@@ -64,9 +86,11 @@ No YAML configuration is required for the default behaviour.
 
 ## Roadmap
 
+Done: per-component quantities + stock linkage; flexible pricing (fixed / sum / sum − discount) with savings
+accessors.
+
 Planned slices, each building on the `BundleItem` join object without a schema rebuild:
 
-- **Pricing** — dynamic (sum of components) and `sum − discount` pricing, with a "you save" display.
 - **Frontend** — a template rendering the bundle's contents and savings on the product page and in the cart.
 - **Optional items / extras** — components the customer can opt into, with price adjustment.
 - **Mix-and-match** — choice groups ("pick 3 of these 6") with min/max selection.
