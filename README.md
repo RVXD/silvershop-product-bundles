@@ -8,9 +8,10 @@ purchased, the stock of each component is decremented automatically; when the or
 restored.
 
 > **Status.** Per-component quantities + component stock linkage + flexible pricing (fixed, or sum of the
-> components with an optional bundle discount) with savings accessors + optional opt-in extras (priced and
-> fulfilled per line) + frontend includes (product page and cart). The data model is built around a join
-> object so the features on the roadmap below slot in without reshaping the schema. See [Roadmap](#roadmap).
+> components with an optional bundle discount) with savings accessors + optional opt-in extras + mix-and-match
+> choice groups (both priced and fulfilled per line, with min/max validation) + frontend includes (product
+> page and cart). The data model is a join object, so roadmap features slot in without reshaping the schema.
+> See [Roadmap](#roadmap).
 
 ## Requirements
 
@@ -36,7 +37,8 @@ Then run a dev/build with a flush:
 1. In the CMS, add a **Bundle** where you would add a Product (it appears in the catalog alongside Products,
    and in the **Products** admin).
 2. Open the **Bundle** tab and add the products it contains, giving each a **quantity** (e.g. 2× Filter + 1×
-   Housing), and tick **Optional** for any that are opt-in extras. A bundle cannot contain another bundle.
+   Housing). Tick **Optional** for opt-in extras, or add **choice groups** and assign items to them for
+   "pick N of these" (see below). A bundle cannot contain another bundle.
 3. Choose how it is priced on the **Pricing** tab (see below).
 
 ### Pricing
@@ -75,7 +77,21 @@ Tick **Optional** on a bundle item to make it an opt-in extra rather than a fixe
 - Different extra selections are **separate cart lines**; an out-of-stock extra never blocks the bundle.
 
 Selections are stored on a `BundleOrderItem` (the bundle's `order_item`), which also exposes
-`$FulfilmentItems` (required + chosen extras) for cart templates.
+`$FulfilmentItems` (required + chosen items) for cart templates.
+
+### Mix-and-match choice groups
+
+For "pick N of these" bundles, add **choice groups** on the Bundle tab (each with a **min** and **max**),
+then assign bundle items to a group via each item's **Choice group** dropdown:
+
+- The add-to-cart form shows one checkbox set per group, labelled with its range ("choose 3", "choose 1–2"),
+  and the selection is **validated** against each group's min/max before the bundle is added.
+- Chosen options are priced and stock-tracked per line, just like optional extras (they share the same
+  `SelectedItemIDs` on the `BundleOrderItem`).
+- `BundleProduct::validateSelection(array $ids)` exposes the min/max check for custom flows.
+
+A bundle item is therefore one of: **required** (always included), **optional** (opt-in extra), or a
+**choice** (an option of a group) — set by its Optional flag and Choice group.
 
 ### Stock linkage
 
@@ -123,12 +139,11 @@ No YAML configuration is required for the default behaviour.
 ## Roadmap
 
 Done: per-component quantities + stock linkage; flexible pricing (fixed / sum / sum − discount) with savings
-accessors; frontend includes for product page and cart; optional opt-in extras (per-line selection, pricing,
-stock).
+accessors; frontend includes for product page and cart; optional opt-in extras; mix-and-match choice groups
+(min/max, validated) — all priced and fulfilled per line.
 
 Planned slices, each building on the `BundleItem` join object without a schema rebuild:
 
-- **Mix-and-match** — choice groups ("pick 3 of these 6") with min/max selection.
 - **Variations** — allow a bundled line to target a specific product variation.
 
 ## Development

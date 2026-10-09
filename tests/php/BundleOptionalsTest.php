@@ -62,7 +62,7 @@ class BundleOptionalsTest extends SapphireTest
         $line = BundleOrderItem::create();
         $line->ProductID = $bundle->ID;
         $line->ProductVersion = $bundle->Version;
-        $line->OptionalItemIDs = $optionalIDs;
+        $line->SelectedItemIDs = $optionalIDs;
         $line->Quantity = 1;
         $line->OrderID = $order->ID;
         $line->write();
@@ -87,12 +87,12 @@ class BundleOptionalsTest extends SapphireTest
         $this->assertSame(8.0, $bundle->getOptionalsTotal());
     }
 
-    public function testOptionalItemIDsSetterNormalises(): void
+    public function testSelectedItemIDsSetterNormalises(): void
     {
         $line = BundleOrderItem::create();
-        $line->OptionalItemIDs = [3, 1, 2, 2, 0, ''];
+        $line->SelectedItemIDs = [3, 1, 2, 2, 0, ''];
 
-        $this->assertSame('1,2,3', $line->OptionalItemIDs);
+        $this->assertSame('1,2,3', $line->SelectedItemIDs);
     }
 
     public function testSelectedOptionalItemsAndFulfilment(): void
@@ -102,7 +102,7 @@ class BundleOptionalsTest extends SapphireTest
 
         $line = $this->cartLine($bundle, [$this->optionalC()->ID]);
 
-        $this->assertSame(1, $line->SelectedOptionalItems()->count());
+        $this->assertSame(1, $line->SelectedItems()->count());
         $this->assertSame(3, $line->FulfilmentItems()->count()); // 2 required + 1 selected optional
     }
 
@@ -176,15 +176,15 @@ class BundleOptionalsTest extends SapphireTest
 
         $withExtra = BundleOrderItem::create();
         $withExtra->ProductID = $bundle->ID;
-        $withExtra->OptionalItemIDs = [$this->optionalC()->ID];
+        $withExtra->SelectedItemIDs = [$this->optionalC()->ID];
 
         $withoutExtra = BundleOrderItem::create();
         $withoutExtra->ProductID = $bundle->ID;
-        $withoutExtra->OptionalItemIDs = [];
+        $withoutExtra->SelectedItemIDs = [];
 
         $this->assertNotSame(
-            $withExtra->uniquedata()['OptionalItemIDs'],
-            $withoutExtra->uniquedata()['OptionalItemIDs']
+            $withExtra->uniquedata()['SelectedItemIDs'],
+            $withoutExtra->uniquedata()['SelectedItemIDs']
         );
     }
 }

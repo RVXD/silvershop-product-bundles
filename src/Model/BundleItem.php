@@ -25,8 +25,10 @@ use SilverStripe\Security\Member;
  * @property bool $Optional
  * @property int $ProductID
  * @property int $BundleID
+ * @property int $ChoiceGroupID
  * @method BundleProduct Bundle()
  * @method Product Product()
+ * @method BundleChoiceGroup ChoiceGroup()
  */
 class BundleItem extends DataObject
 {
@@ -48,6 +50,9 @@ class BundleItem extends DataObject
     private static array $has_one = [
         'Bundle' => BundleProduct::class,
         'Product' => Product::class,
+        // When set, this item is one of the options of a mix-and-match choice group (not a plain
+        // required/optional item); the customer picks it as part of that group's selection.
+        'ChoiceGroup' => BundleChoiceGroup::class,
     ];
 
     /**
@@ -120,7 +125,33 @@ class BundleItem extends DataObject
             'An optional extra the customer can add. Required items are always included and set the base price.'
         ));
 
+        $bundle = $this->Bundle();
+        $groups = ($bundle && $bundle->exists())
+            ? $bundle->ChoiceGroups()->map('ID', 'Title')->toArray()
+            : [];
+        if ($groups !== []) {
+            $fields->replaceField(
+                'ChoiceGroupID',
+                DropdownField::create('ChoiceGroupID', _t(self::class . '.ChoiceGroup', 'Choice group'), $groups)
+                    ->setEmptyString(_t(self::class . '.NoChoiceGroup', '(none — a required or optional item)'))
+                    ->setDescription(_t(
+                        self::class . '.ChoiceGroupDesc',
+                        'Make this product one of a mix-and-match group\'s options instead of required/optional.'
+                    ))
+            );
+        } else {
+            $fields->removeByName('ChoiceGroupID');
+        }
+
         return $fields;
+    }
+
+    /**
+     * Whether this item is an option of a mix-and-match choice group (rather than required/optional).
+     */
+    public function IsChoice(): bool
+    {
+        return (bool) $this->ChoiceGroupID;
     }
 
     public function validate(): ValidationResult

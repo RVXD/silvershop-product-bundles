@@ -15,6 +15,18 @@ SilverShop\Page\Product:
     Title: Component C
     BasePrice: 8.00
     AllowPurchase: 1
+  choice_x:
+    Title: Choice X
+    BasePrice: 7.00
+    AllowPurchase: 1
+  choice_y:
+    Title: Choice Y
+    BasePrice: 7.00
+    AllowPurchase: 1
+  choice_z:
+    Title: Choice Z
+    BasePrice: 7.00
+    AllowPurchase: 1
 
 SilverShop\ProductBundles\Page\BundleProduct:
   bundle:
@@ -25,6 +37,19 @@ SilverShop\ProductBundles\Page\BundleProduct:
     Title: Empty Bundle
     BasePrice: 20.00
     AllowPurchase: 1
+  choice_bundle:
+    Title: Choice Bundle
+    BasePrice: 5.00
+    AllowPurchase: 1
+    PricingType: Fixed
+
+SilverShop\ProductBundles\Model\BundleChoiceGroup:
+  group_pick2:
+    Bundle: =>SilverShop\ProductBundles\Page\BundleProduct.choice_bundle
+    Title: Pick your colours
+    MinChoices: 2
+    MaxChoices: 2
+    SortOrder: 1
 
 SilverShop\ProductBundles\Model\BundleItem:
   item_a:
@@ -43,3 +68,21 @@ SilverShop\ProductBundles\Model\BundleItem:
     Quantity: 1
     SortOrder: 3
     Optional: 1
+  choice_item_x:
+    Bundle: =>SilverShop\ProductBundles\Page\BundleProduct.choice_bundle
+    Product: =>SilverShop\Page\Product.choice_x
+    Quantity: 1
+    SortOrder: 1
+    ChoiceGroup: =>SilverShop\ProductBundles\Model\BundleChoiceGroup.group_pick2
+  choice_item_y:
+    Bundle: =>SilverShop\ProductBundles\Page\BundleProduct.choice_bundle
+    Product: =>SilverShop\Page\Product.choice_y
+    Quantity: 1
+    SortOrder: 2
+    ChoiceGroup: =>SilverShop\ProductBundles\Model\BundleChoiceGroup.group_pick2
+  choice_item_z:
+    Bundle: =>SilverShop\ProductBundles\Page\BundleProduct.choice_bundle
+    Product: =>SilverShop\Page\Product.choice_z
+    Quantity: 1
+    SortOrder: 3
+    ChoiceGroup: =>SilverShop\ProductBundles\Model\BundleChoiceGroup.group_pick2

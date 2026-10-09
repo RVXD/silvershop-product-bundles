@@ -6,8 +6,10 @@ namespace SilverShop\ProductBundles\Page;
 
 use SilverShop\Model\Order;
 use SilverShop\Page\Product;
+use SilverShop\ProductBundles\Model\BundleChoiceGroup;
 use SilverShop\ProductBundles\Model\BundleItem;
 use SilverShop\ProductBundles\Model\BundleOrderItem;
+use SilverStripe\Core\Validation\ValidationResult;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridField;
@@ -69,15 +71,17 @@ class BundleProduct extends Product
      */
     private static array $has_many = [
         'BundleItems' => BundleItem::class,
+        'ChoiceGroups' => BundleChoiceGroup::class,
     ];
 
     /**
-     * Bundle items are meaningless without their bundle, so remove them with it.
+     * Bundle items and choice groups are meaningless without their bundle, so remove them with it.
      *
      * @var array<string>
      */
     private static array $cascade_deletes = [
         'BundleItems',
+        'ChoiceGroups',
     ];
 
     /**
@@ -94,8 +98,8 @@ class BundleProduct extends Product
     {
         $fields = parent::getCMSFields();
 
-        // Replace the auto-scaffolded has_many grid so there is a single "Bundle" tab (not a duplicate).
-        $fields->removeByName('BundleItems');
+        // Replace the auto-scaffolded has_many grids so there is a single "Bundle" tab (not duplicates).
+        $fields->removeByName(['BundleItems', 'ChoiceGroups']);
 
         if ($this->isInDB()) {
             $fields->addFieldToTab(
@@ -104,6 +108,15 @@ class BundleProduct extends Product
                     'BundleItems',
                     _t(self::class . '.BundleItems', 'Bundled products'),
                     $this->BundleItems(),
+                    GridFieldConfig_RecordEditor::create()
+                )
+            );
+            $fields->addFieldToTab(
+                'Root.BundleItems',
+                GridField::create(
+                    'ChoiceGroups',
+                    _t(self::class . '.ChoiceGroups', 'Mix-and-match choice groups'),
+                    $this->ChoiceGroups(),
                     GridFieldConfig_RecordEditor::create()
                 )
             );
@@ -168,19 +181,65 @@ class BundleProduct extends Product
     }
 
     /**
-     * The always-included items (set the base price).
+     * The always-included items (set the base price): not optional and not part of a choice group.
      */
     public function RequiredItems(): HasManyList
     {
-        return $this->BundleItems()->filter('Optional', 0);
+        return $this->BundleItems()->filter(['Optional' => 0, 'ChoiceGroupID' => 0]);
     }
 
     /**
-     * The opt-in extras.
+     * The opt-in extras (optional, and not part of a choice group).
      */
     public function OptionalItems(): HasManyList
     {
-        return $this->BundleItems()->filter('Optional', 1);
+        return $this->BundleItems()->filter(['Optional' => 1, 'ChoiceGroupID' => 0]);
+    }
+
+    /**
+     * Items the customer selects per order line: optional extras plus every choice-group option.
+     */
+    public function SelectableItems(): HasManyList
+    {
+        return $this->BundleItems()->filterAny(['Optional' => 1, 'ChoiceGroupID:GreaterThan' => 0]);
+    }
+
+    /**
+     * Validate a set of selected {@link BundleItem} IDs against this bundle's choice groups (min/max).
+     * Optional extras are unconstrained. Valid when every group's selected count is within range.
+     *
+     * @param array<int> $selectedIDs
+     */
+    public function validateSelection(array $selectedIDs): ValidationResult
+    {
+        $result = ValidationResult::create();
+        $selectedIDs = array_map('intval', $selectedIDs);
+
+        /** @var BundleChoiceGroup $group */
+        foreach ($this->ChoiceGroups() as $group) {
+            $groupItemIDs = array_map('intval', $group->Items()->column('ID'));
+            $chosen = count(array_intersect($selectedIDs, $groupItemIDs));
+
+            $min = (int) $group->MinChoices;
+            $max = (int) $group->MaxChoices;
+
+            if ($chosen < $min) {
+                $result->addError(_t(
+                    self::class . '.ChooseAtLeast',
+                    'Please choose at least {min} from "{group}".',
+                    ['min' => $min, 'group' => $group->Title]
+                ));
+            }
+            if ($max > 0 && $chosen > $max) {
+                $result->addError(_t(
+                    self::class . '.ChooseAtMost',
+                    'Please choose at most {max} from "{group}".',
+                    ['max' => $max, 'group' => $group->Title]
+                ));
+            }
+        }
+
+        return $result;
     }
 
     /**

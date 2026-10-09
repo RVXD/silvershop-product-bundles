@@ -46,6 +46,22 @@
         </ul>
     <% end_if %>
 
+    <% loop $ChoiceGroups %>
+        <% if $Items %>
+            <h3 class="bundle-contents__extras-heading">$Title <small>(<%t SilverShop\ProductBundles.Choose "choose {range}" range=$ChoiceRange %>)</small></h3>
+            <ul class="bundle-contents__list">
+                <% loop $Items %>
+                    <li class="bundle-contents__item bundle-contents__item--optional">
+                        <% if $Product.Image.Exists %><img src="$Product.Image.Fill(56,56).URL" alt="$Product.Title.ATT" width="56" height="56"><% end_if %>
+                        <span class="bundle-contents__qty">{$Quantity}&times;</span>
+                        <a href="$Product.Link">$Product.Title</a>
+                        <span class="bundle-contents__price">+$SubTotal.Nice</span>
+                    </li>
+                <% end_loop %>
+            </ul>
+        <% end_if %>
+    <% end_loop %>
+
     <% if $HasSavings %>
         <p class="bundle-contents__savings">
             <span class="bundle-contents__was">$ComponentsPrice.Nice</span>

@@ -16,6 +16,6 @@ SilverShop\Model\Order:
   extensions:
     - SilverShop\ProductBundles\Extension\BundleOrderExtension
 
-SilverShop\Forms\AddProductForm:
+SilverShop\Page\Product:
   extensions:
-    - SilverShop\ProductBundles\Extension\AddBundleOptionsExtension
+    - SilverShop\ProductBundles\Extension\BundleFormExtension

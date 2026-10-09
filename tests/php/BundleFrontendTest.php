@@ -55,7 +55,7 @@ class BundleFrontendTest extends SapphireTest
         $line = BundleOrderItem::create();
         $line->ProductID = $bundle->ID;
         $line->ProductVersion = $bundle->Version;
-        $line->OptionalItemIDs = [$itemC->ID];
+        $line->SelectedItemIDs = [$itemC->ID];
         $line->write();
 
         $html = (string) $line->renderWith(['type' => 'Includes', 'SilverShop\\ProductBundles\\BundleCartSummary']);
