@@ -43,8 +43,8 @@ class BundleOrderExtension extends Extension
             $items = $orderItem instanceof BundleOrderItem ? $orderItem->FulfilmentItems() : $product->RequiredItems();
 
             foreach ($items as $item) {
-                $component = $item->Product();
-                if (!$component || !$component->exists() || !$component->hasMethod('incrementStock')) {
+                $component = $item->Buyable();
+                if (!$component || !$component->hasMethod('incrementStock')) {
                     continue;
                 }
 

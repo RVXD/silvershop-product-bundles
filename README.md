@@ -9,9 +9,8 @@ restored.
 
 > **Status.** Per-component quantities + component stock linkage + flexible pricing (fixed, or sum of the
 > components with an optional bundle discount) with savings accessors + optional opt-in extras + mix-and-match
-> choice groups (both priced and fulfilled per line, with min/max validation) + frontend includes (product
-> page and cart). The data model is a join object, so roadmap features slot in without reshaping the schema.
-> See [Roadmap](#roadmap).
+> choice groups (min/max, validated) + per-line **variations** + frontend includes (product page and cart).
+> All selections are priced and fulfilled per line. See [Roadmap](#roadmap).
 
 ## Requirements
 
@@ -37,8 +36,9 @@ Then run a dev/build with a flush:
 1. In the CMS, add a **Bundle** where you would add a Product (it appears in the catalog alongside Products,
    and in the **Products** admin).
 2. Open the **Bundle** tab and add the products it contains, giving each a **quantity** (e.g. 2× Filter + 1×
-   Housing). Tick **Optional** for opt-in extras, or add **choice groups** and assign items to them for
-   "pick N of these" (see below). A bundle cannot contain another bundle.
+   Housing) — and, optionally, a specific **variation** of that product. Tick **Optional** for opt-in extras,
+   or add **choice groups** and assign items to them for "pick N of these" (see below). A bundle cannot
+   contain another bundle.
 3. Choose how it is priced on the **Pricing** tab (see below).
 
 ### Pricing
@@ -93,6 +93,16 @@ then assign bundle items to a group via each item's **Choice group** dropdown:
 A bundle item is therefore one of: **required** (always included), **optional** (opt-in extra), or a
 **choice** (an option of a group) — set by its Optional flag and Choice group.
 
+### Variations
+
+A bundle item can target a **specific variation** of its product (e.g. "T-Shirt — size L") rather than the
+whole product. On the item, pick a **Variation** (the dropdown lists the product's variations once it has
+any); the variation must belong to the selected product.
+
+The variation then drives that line's **price, stock and purchasability** (via its own
+`sellingPrice()`/stock), and its title is shown on the product page and in the cart. This works for required,
+optional and choice items alike.
+
 ### Stock linkage
 
 With `silvershop/stock` installed, each component's warehouse stock is adjusted automatically:
@@ -140,11 +150,10 @@ No YAML configuration is required for the default behaviour.
 
 Done: per-component quantities + stock linkage; flexible pricing (fixed / sum / sum − discount) with savings
 accessors; frontend includes for product page and cart; optional opt-in extras; mix-and-match choice groups
-(min/max, validated) — all priced and fulfilled per line.
+(min/max, validated); per-line variations — all priced and fulfilled per line.
 
-Planned slices, each building on the `BundleItem` join object without a schema rebuild:
-
-- **Variations** — allow a bundled line to target a specific product variation.
+Possible future additions (not yet built): tiered/quantity price breaks, a "frequently bought together"
+suggester, and a bundle-as-its-own-SKU stock mode.
 
 ## Development
 

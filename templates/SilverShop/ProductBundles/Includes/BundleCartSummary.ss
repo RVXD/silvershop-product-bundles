@@ -5,7 +5,7 @@
 <% if $FulfilmentItems %>
 <ul class="bundle-cart-summary" style="list-style:none;margin:.25rem 0 0;padding:0;font-size:.85rem;color:#666">
     <% loop $FulfilmentItems %>
-        <li>{$Quantity}&times; $Product.Title</li>
+        <li>{$Quantity}&times; $BuyableTitle</li>
     <% end_loop %>
 </ul>
 <% end_if %>

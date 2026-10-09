@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace SilverShop\ProductBundles\Model;
 
+use SilverShop\Extension\ProductVariationsExtension;
+use SilverShop\Model\Buyable;
+use SilverShop\Model\Variation\Variation;
 use SilverShop\Page\Product;
 use SilverShop\ProductBundles\Page\BundleProduct;
 use SilverStripe\Core\Validation\ValidationResult;
@@ -26,9 +29,11 @@ use SilverStripe\Security\Member;
  * @property int $ProductID
  * @property int $BundleID
  * @property int $ChoiceGroupID
+ * @property int $VariationID
  * @method BundleProduct Bundle()
  * @method Product Product()
  * @method BundleChoiceGroup ChoiceGroup()
+ * @method Variation Variation()
  */
 class BundleItem extends DataObject
 {
@@ -53,6 +58,8 @@ class BundleItem extends DataObject
         // When set, this item is one of the options of a mix-and-match choice group (not a plain
         // required/optional item); the customer picks it as part of that group's selection.
         'ChoiceGroup' => BundleChoiceGroup::class,
+        // When set, the line targets this specific variation of the product rather than the whole product.
+        'Variation' => Variation::class,
     ];
 
     /**
@@ -81,17 +88,52 @@ class BundleItem extends DataObject
     ];
 
     /**
-     * The contribution of this line to the bundle: the component's selling price times its bundle quantity.
+     * The buyable this line resolves to: the chosen {@link Variation} when set, otherwise the whole
+     * {@link Product}. Used for price, stock and purchasability.
+     */
+    public function Buyable(): ?Buyable
+    {
+        if ($this->VariationID) {
+            $variation = $this->Variation();
+            if ($variation && $variation->exists()) {
+                return $variation;
+            }
+        }
+
+        $product = $this->Product();
+
+        return ($product && $product->exists()) ? $product : null;
+    }
+
+    /**
+     * The contribution of this line to the bundle: the buyable's selling price times its bundle quantity.
      * Cast to Currency for templates.
      */
     public function getSubTotal(): float
     {
-        $product = $this->Product();
-        if (!$product || !$product->exists()) {
+        $buyable = $this->Buyable();
+        if (!$buyable) {
             return 0.0;
         }
 
-        return $product->sellingPrice() * max(1, (int) $this->Quantity);
+        return $buyable->sellingPrice() * max(1, (int) $this->Quantity);
+    }
+
+    /**
+     * Display title for this line — the variation's title when set, otherwise the product's.
+     */
+    public function getBuyableTitle(): string
+    {
+        if ($this->VariationID) {
+            $variation = $this->Variation();
+            if ($variation && $variation->exists()) {
+                return (string) $variation->getTitle();
+            }
+        }
+
+        $product = $this->Product();
+
+        return ($product && $product->exists()) ? (string) $product->getTitle() : '';
     }
 
     public function getCMSFields(): FieldList
@@ -143,6 +185,26 @@ class BundleItem extends DataObject
             $fields->removeByName('ChoiceGroupID');
         }
 
+        $product = $this->Product();
+        $variations = ($product && $product->exists()
+            && $product->hasExtension(ProductVariationsExtension::class)
+            && $product->Variations()->exists())
+            ? $product->Variations()->map('ID', 'Title')->toArray()
+            : [];
+        if ($variations !== []) {
+            $fields->replaceField(
+                'VariationID',
+                DropdownField::create('VariationID', _t(self::class . '.Variation', 'Variation'), $variations)
+                    ->setEmptyString(_t(self::class . '.WholeProduct', '(the whole product)'))
+                    ->setDescription(_t(
+                        self::class . '.VariationDesc',
+                        'Target a specific variation of this product instead of the whole product.'
+                    ))
+            );
+        } else {
+            $fields->removeByName('VariationID');
+        }
+
         return $fields;
     }
 
@@ -164,6 +226,16 @@ class BundleItem extends DataObject
 
         if ((int) $this->Quantity < 1) {
             $result->addFieldError('Quantity', _t(self::class . '.QuantityMin', 'Quantity must be at least 1.'));
+        }
+
+        if ($this->VariationID) {
+            $variation = $this->Variation();
+            if (!$variation || !$variation->exists() || (int) $variation->ProductID !== (int) $this->ProductID) {
+                $result->addFieldError('VariationID', _t(
+                    self::class . '.VariationMismatch',
+                    'The chosen variation must belong to the selected product.'
+                ));
+            }
         }
 
         return $result;

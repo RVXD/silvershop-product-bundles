@@ -115,12 +115,11 @@ class BundleAddProductForm extends AddProductForm
         $source = [];
         /** @var BundleItem $item */
         foreach ($items as $item) {
-            $product = $item->Product();
-            if (!$product || !$product->exists()) {
+            if (!$item->Buyable()) {
                 continue;
             }
 
-            $label = $product->Title;
+            $label = $item->getBuyableTitle();
             if ((int) $item->Quantity > 1) {
                 $label = $item->Quantity . '× ' . $label;
             }

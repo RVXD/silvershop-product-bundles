@@ -26,7 +26,7 @@
             <li class="bundle-contents__item">
                 <% if $Product.Image.Exists %><img src="$Product.Image.Fill(56,56).URL" alt="$Product.Title.ATT" width="56" height="56"><% end_if %>
                 <span class="bundle-contents__qty">{$Quantity}&times;</span>
-                <a href="$Product.Link">$Product.Title</a>
+                <a href="$Product.Link">$BuyableTitle</a>
                 <span class="bundle-contents__price">$SubTotal.Nice</span>
             </li>
         <% end_loop %>
@@ -39,7 +39,7 @@
                 <li class="bundle-contents__item bundle-contents__item--optional">
                     <% if $Product.Image.Exists %><img src="$Product.Image.Fill(56,56).URL" alt="$Product.Title.ATT" width="56" height="56"><% end_if %>
                     <span class="bundle-contents__qty">{$Quantity}&times;</span>
-                    <a href="$Product.Link">$Product.Title</a>
+                    <a href="$Product.Link">$BuyableTitle</a>
                     <span class="bundle-contents__price">+$SubTotal.Nice</span>
                 </li>
             <% end_loop %>

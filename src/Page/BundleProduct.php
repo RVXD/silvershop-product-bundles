@@ -322,13 +322,13 @@ class BundleProduct extends Product
         // Only required items gate purchasability — an out-of-stock optional extra does not block the bundle.
         /** @var BundleItem $item */
         foreach ($this->RequiredItems() as $item) {
-            $product = $item->Product();
-            if (!$product || !$product->exists()) {
+            $buyable = $item->Buyable();
+            if (!$buyable) {
                 return false;
             }
 
             $required = $quantity * max(1, (int) $item->Quantity);
-            if (!$product->canPurchase($member, $required)) {
+            if (!$buyable->canPurchase($member, $required)) {
                 return false;
             }
         }
