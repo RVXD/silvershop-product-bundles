@@ -4,6 +4,14 @@ de:
     ContentsHeading: 'Was ist in diesem Paket'
     Extras: 'Optionale Extras'
     Save: 'Sparen Sie {amount} ({percent}%)'
+  SilverShop\ProductBundles\BundleSalesReport:
+    TITLE: 'Paketverkäufe'
+    DESC: 'Paketprodukte nach verkaufter Stückzahl und Umsatz für einen Zeitraum. Nur aufgegebene Bestellungen, Produktzeilen.'
+    ColBundle: 'Paket'
+    ColUnits: 'Verkaufte Stück'
+    ColRevenue: 'Umsatz'
+    Start: 'Von (Zahldatum)'
+    End: 'Bis (Zahldatum)'
   SilverShop\ProductBundles\Form\BundleAddProductForm:
     Choose: 'wählen Sie {range}'
     Extras: 'Optionale Extras'

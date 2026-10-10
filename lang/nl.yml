@@ -4,6 +4,14 @@ nl:
     ContentsHeading: 'Wat zit er in dit pakket'
     Extras: 'Optionele extra''s'
     Save: 'Bespaar {amount} ({percent}%)'
+  SilverShop\ProductBundles\BundleSalesReport:
+    TITLE: 'Pakketverkoop'
+    DESC: 'Pakketproducten gerangschikt op verkochte aantallen en omzet voor een periode. Alleen geplaatste bestellingen, productregels.'
+    ColBundle: 'Pakket'
+    ColUnits: 'Verkochte aantallen'
+    ColRevenue: 'Omzet'
+    Start: 'Vanaf (betaaldatum)'
+    End: 'Tot (betaaldatum)'
   SilverShop\ProductBundles\Form\BundleAddProductForm:
     Choose: 'kies {range}'
     Extras: 'Optionele extra''s'

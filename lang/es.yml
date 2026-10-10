@@ -4,6 +4,14 @@ es:
     ContentsHeading: 'Contenido de este paquete'
     Extras: 'Extras opcionales'
     Save: 'Ahorra {amount} ({percent}%)'
+  SilverShop\ProductBundles\BundleSalesReport:
+    TITLE: 'Ventas de paquetes'
+    DESC: 'Productos en paquete clasificados por unidades vendidas e ingresos para un periodo. Solo pedidos realizados, líneas de producto.'
+    ColBundle: 'Paquete'
+    ColUnits: 'Unidades vendidas'
+    ColRevenue: 'Ingresos'
+    Start: 'Desde (fecha de pago)'
+    End: 'Hasta (fecha de pago)'
   SilverShop\ProductBundles\Form\BundleAddProductForm:
     Choose: 'elige {range}'
     Extras: 'Extras opcionales'

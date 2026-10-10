@@ -4,6 +4,14 @@ en:
     ContentsHeading: 'What''s in this bundle'
     Extras: 'Optional extras'
     Save: 'Save {amount} ({percent}%)'
+  SilverShop\ProductBundles\BundleSalesReport:
+    TITLE: 'Bundle sales'
+    DESC: 'Bundle products ranked by units and revenue sold for a period. Placed orders, product lines only.'
+    ColBundle: 'Bundle'
+    ColUnits: 'Units sold'
+    ColRevenue: 'Revenue'
+    Start: 'From (paid date)'
+    End: 'To (paid date)'
   SilverShop\ProductBundles\Form\BundleAddProductForm:
     Choose: 'choose {range}'
     Extras: 'Optional extras'

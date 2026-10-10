@@ -4,6 +4,14 @@ fr:
     ContentsHeading: 'Contenu de ce pack'
     Extras: 'Options supplémentaires'
     Save: 'Économisez {amount} ({percent}%)'
+  SilverShop\ProductBundles\BundleSalesReport:
+    TITLE: 'Ventes de packs'
+    DESC: 'Produits en pack classés par unités vendues et chiffre d''affaires pour une période. Commandes passées uniquement, lignes de produits.'
+    ColBundle: 'Pack'
+    ColUnits: 'Unités vendues'
+    ColRevenue: 'Chiffre d''affaires'
+    Start: 'Du (date de paiement)'
+    End: 'Au (date de paiement)'
   SilverShop\ProductBundles\Form\BundleAddProductForm:
     Choose: 'choisissez {range}'
     Extras: 'Options supplémentaires'
